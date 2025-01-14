@@ -1,5 +1,9 @@
 # NAVADA - Fashion Analytics Platform
 
+## Overview
+
+NAVADA is a comprehensive fashion analytics platform designed to help fashion brands and retailers make data-driven decisions.
+
 [Previous content remains unchanged until Payment Integration section]
 
 ## Payment Integration
