@@ -91,7 +91,7 @@ const genderData: GenderMetrics[] = [
 
 export function UserSegments() {
   const [expandedSegment, setExpandedSegment] = useState<'men' | 'women' | null>(null);
-  const [demographics, setDemographics] = useState<GenderMetrics[]>(genderData);
+  const [demographicsData, setDemographicsData] = useState<GenderMetrics[]>(genderData);
 
   useEffect(() => {
     async function fetchDemographics() {
@@ -111,7 +111,7 @@ export function UserSegments() {
       const menData = data.filter((d: DemographicData) => d.gender === 'male');
       const womenData = data.filter((d: DemographicData) => d.gender === 'female');
 
-      const transformGenderData = (genderData: any[], gender: 'men' | 'women') => ({
+      const transformGenderData = (genderData: DemographicData[], gender: 'men' | 'women') => ({
         gender,
         metrics: {
           engagement: `${(genderData.reduce((acc, d) => acc + d.engagement_rate, 0) / genderData.length).toFixed(1)}%`,
@@ -136,7 +136,7 @@ export function UserSegments() {
         transformGenderData(womenData, 'women')
       ];
 
-      setDemographics(newDemographics);
+      setDemographicsData(newDemographics);
     }
 
     fetchDemographics();
@@ -174,7 +174,7 @@ export function UserSegments() {
       </div>
 
       <div className="space-y-4">
-        {genderData.map((segment) => (
+        {demographicsData.map((segment) => (
           <div key={segment.gender} className="border border-zinc-200 rounded-lg">
             <button
               onClick={() => setExpandedSegment(expandedSegment === segment.gender ? null : segment.gender)}

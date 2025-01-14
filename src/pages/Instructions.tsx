@@ -1,47 +1,22 @@
 import { useState } from 'react';
-import { Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-} from 'chart.js';
 import { 
-  Upload, 
   BarChart2, 
   TrendingUp,
   Share2,
   Users,
-  MessageSquare,
   Heart,
-  Eye,
   Clock,
   ArrowRight,
   AlertCircle,
   Database,
   Settings,
   Lock,
-  Briefcase,
   HelpCircle,
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-);
+// No chart registration needed - removed unused Chart.js code
 
 // Social Media Analytics Data
 const dataMetrics = [

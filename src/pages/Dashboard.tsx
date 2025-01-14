@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { TrendingUp, Users, Camera, Hash, Upload, Download } from 'lucide-react';
 import { StatCard } from '../components/StatCard';
 import { PerformanceChart } from '../components/PerformanceChart';

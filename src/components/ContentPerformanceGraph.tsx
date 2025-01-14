@@ -144,7 +144,7 @@ export function ContentPerformanceGraph() {
         padding: 12,
         displayColors: false,
         callbacks: {
-          label: function(context: any) {
+          label: function(context: { dataset: { label: string }, parsed: { y: number } }) {
             const label = context.dataset.label;
             const value = context.parsed.y.toFixed(1);
             return `${label}: ${value}${label.includes('%') ? '%' : ''}`;
@@ -159,7 +159,7 @@ export function ContentPerformanceGraph() {
           minRotation: 45,
           autoSkip: true,
           maxTicksLimit: 24, // Show fewer ticks for better readability
-          callback: function(value: any, index: number) {
+          callback: function(value: string | number, index: number) {
             const label = filteredData[index]?.hour;
             // Only show the day name when it changes
             if (index === 0 || (index > 0 && label?.split(' ')[0] !== filteredData[index - 1]?.hour?.split(' ')[0])) {

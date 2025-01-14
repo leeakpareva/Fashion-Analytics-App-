@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock, TrendingUp, TrendingDown, BarChart2, RefreshCcw } from 'lucide-react';
+import { Clock, TrendingUp, TrendingDown, RefreshCcw } from 'lucide-react';
 
 interface Activity {
   time: string;

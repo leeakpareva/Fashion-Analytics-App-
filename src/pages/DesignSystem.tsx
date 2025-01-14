@@ -1,20 +1,12 @@
 import { useState } from 'react';
 import { 
-  TrendingUp, 
-  Users, 
-  Camera, 
-  Hash, 
-  Bell, 
   Search, 
-  ChevronDown,
   Copy,
   Check,
   Palette,
-  Layout,
   Type,
   Box,
   Grid,
-  Lock,
   Menu
 } from 'lucide-react';
 
@@ -27,9 +19,7 @@ interface ComponentExample {
 
 export function DesignSystem() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
-  const [inputValue, setInputValue] = useState('');
   const [activeTab, setActiveTab] = useState<'components' | 'colors' | 'typography' | 'layout'>('components');
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const colors = [

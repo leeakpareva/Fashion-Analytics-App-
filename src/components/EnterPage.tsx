@@ -5,7 +5,7 @@ export function EnterPage() {
   const navigate = useNavigate();
   const [clicked, setClicked] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [audioContext] = useState(() => new (window.AudioContext || (window as any).webkitAudioContext)());
+  const [audioContext] = useState(() => new (window.AudioContext || (window as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext)());
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -75,7 +75,7 @@ export function EnterPage() {
             style={{
               ...calculateLetterPosition(index),
               '--delay': `${index * 0.1}s`
-            } as any}
+            } as React.CSSProperties}
           >
             {letter}
           </span>

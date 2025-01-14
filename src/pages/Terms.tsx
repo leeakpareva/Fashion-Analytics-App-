@@ -4,7 +4,7 @@ import { ChevronDown, ChevronUp, Shield, Lock, Scale, AlertCircle } from 'lucide
 interface Section {
   title: string;
   content: string[];
-  icon: any;
+  icon: React.ElementType;
 }
 
 export function Terms() {

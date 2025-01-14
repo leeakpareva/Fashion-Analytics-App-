@@ -8,9 +8,11 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
+  ChartOptions,
+  TooltipItem
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import { Line, getElementAtEvent } from 'react-chartjs-2';
 import { Settings, TrendingUp, TrendingDown, AlertCircle, ArrowRight, Download } from 'lucide-react';
 
 ChartJS.register(
@@ -179,7 +181,7 @@ const initialFollowerData: DataPoint[] = [
 
 const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-const options = {
+const options: ChartOptions<'line'> = {
   responsive: true,
   maintainAspectRatio: false,
   interaction: {
@@ -197,7 +199,7 @@ const options = {
         color: '#18181b',
         font: {
           family: 'system-ui',
-          weight: '500',
+          weight: 500,
           size: 12
         },
         padding: 20,
@@ -215,14 +217,14 @@ const options = {
       displayColors: false,
       titleFont: {
         size: 14,
-        weight: '600'
+        weight: 600
       },
       bodyFont: {
         size: 13
       },
       callbacks: {
-        label: function(context: any) {
-          return `${context.dataset.label}: ${context.parsed.y.toFixed(2)}%`;
+        label: function(tooltipItem: TooltipItem<'line'>) {
+          return `${tooltipItem.dataset.label}: ${tooltipItem.parsed.y.toFixed(2)}%`;
         }
       }
     }
@@ -232,7 +234,7 @@ const options = {
       beginAtZero: true,
       grid: {
         color: '#f4f4f5',
-        drawBorder: false
+        display: false
       },
       ticks: {
         color: '#71717a',
@@ -240,8 +242,8 @@ const options = {
         font: {
           size: 11
         },
-        callback: function(value: number) {
-          return value.toFixed(1) + '%';
+        callback: function(value: number | string) {
+          return typeof value === 'number' ? value.toFixed(1) + '%' : value;
         }
       }
     },
@@ -387,7 +389,15 @@ export function PerformanceChart() {
     window.URL.revokeObjectURL(url);
   };
 
-  const handleChartClick = (event: any, elements: any[]) => {
+  const handleChartClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const chart = event.currentTarget;
+    const ctx = chart.getContext('2d');
+    if (!ctx) return;
+    
+    const chartInstance = ChartJS.getChart(chart);
+    if (!chartInstance) return;
+    
+    const elements = getElementAtEvent(chartInstance, event);
     if (elements && elements.length > 0) {
       const index = elements[0].index;
       setActivePoint(index);

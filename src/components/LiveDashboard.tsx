@@ -1,17 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Activity, Users, Eye, TrendingUp } from 'lucide-react';
+import React from 'react';
 import { supabase } from '../lib/supabaseClient';
 
-interface AnalyticsEvent {
-  event_name: string;
-  event_data: {
-    value: number;
-    previous_value?: number;
-  };
-}
-
 interface Metric {
-  icon: any;
+  icon: React.ElementType;
   label: string;
   value: string;
   trend: number;
@@ -104,8 +97,7 @@ export function LiveDashboard() {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
-  }, []);
+  }, [metrics]);
 
   return (
     <div className="hidden lg:flex items-center gap-6 px-6 py-2 bg-zinc-900 text-white">
