@@ -1,5 +1,13 @@
 import { LucideIcon } from 'lucide-react';
 
+/**
+ * Props for the StatCard component
+ * @interface StatCardProps
+ * @property {LucideIcon} icon - The Lucide icon to display in the card header
+ * @property {string} label - The label text describing the statistic
+ * @property {string} value - The main statistical value to display
+ * @property {string} trend - The trend indicator text (e.g., "↑ 12%" or "↓ 5%")
+ */
 interface StatCardProps {
   icon: LucideIcon;
   label: string;
