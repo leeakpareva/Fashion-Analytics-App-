@@ -1,11 +1,30 @@
 import { useState, useEffect } from 'react';
 import { Activity, Users, Eye, TrendingUp } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
+
+interface AnalyticsEvent {
+  event_name: string;
+  event_data: {
+    value: number;
+    previous_value?: number;
+  };
+}
 
 interface Metric {
   icon: any;
   label: string;
   value: string;
   trend: number;
+}
+
+function formatValue(value: number, label: string): string {
+  if (label === 'Live Users') {
+    return Math.round(value).toString();
+  } else if (label === 'New Followers' || label === 'Views') {
+    return (Math.round(value * 10) / 10).toFixed(1) + 'K';
+  } else {
+    return value.toFixed(1) + '%';
+  }
 }
 
 export function LiveDashboard() {
@@ -17,33 +36,75 @@ export function LiveDashboard() {
   ]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setMetrics(currentMetrics => 
-        currentMetrics.map(metric => {
-          const variation = (Math.random() - 0.5) * 10;
-          const currentValue = parseFloat(metric.value.replace(/[^0-9.-]/g, ''));
-          let newValue: string;
-          
-          if (metric.label === 'Live Users') {
-            newValue = Math.round(currentValue + variation).toString();
-          } else if (metric.label === 'New Followers') {
-            newValue = (Math.round((currentValue + variation / 10) * 10) / 10).toFixed(1) + 'K';
-          } else if (metric.label === 'Views') {
-            newValue = (Math.round((currentValue + variation / 5) * 10) / 10).toFixed(1) + 'K';
-          } else {
-            newValue = (Math.round((currentValue + variation / 20) * 10) / 10).toFixed(1) + '%';
-          }
+    async function fetchAnalytics() {
+      const { data: events, error } = await supabase
+        .from('analytics_events')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(4);
 
-          return {
-            ...metric,
-            value: newValue,
-            trend: Math.round((Math.random() - 0.5) * 10 * 10) / 10
-          };
-        })
-      );
-    }, 3000);
+      if (error) {
+        console.error('Error fetching analytics:', error);
+        return;
+      }
 
-    return () => clearInterval(interval);
+      if (!events?.length) return;
+
+      const newMetrics = metrics.map(metric => {
+        const event = events.find(e => e.event_name.toLowerCase() === metric.label.toLowerCase().replace(' ', '_'));
+        if (!event) return metric;
+
+        const value = event.event_data.value;
+        const previousValue = event.event_data.previous_value || value;
+        const trend = previousValue ? ((value - previousValue) / previousValue) * 100 : 0;
+
+        return {
+          ...metric,
+          value: formatValue(value, metric.label),
+          trend: Math.round(trend * 10) / 10
+        };
+      });
+
+      setMetrics(newMetrics);
+    }
+
+    fetchAnalytics();
+
+    // Subscribe to real-time updates
+    const subscription = supabase
+      .channel('analytics_events')
+      .on('postgres_changes', 
+        { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'analytics_events' 
+        }, 
+        payload => {
+          const event = payload.new;
+          setMetrics(currentMetrics => 
+            currentMetrics.map(metric => {
+              if (metric.label.toLowerCase().replace(' ', '_') === event.event_name.toLowerCase()) {
+                const value = event.event_data.value;
+                const previousValue = event.event_data.previous_value || value;
+                const trend = previousValue ? ((value - previousValue) / previousValue) * 100 : 0;
+
+                return {
+                  ...metric,
+                  value: formatValue(value, metric.label),
+                  trend: Math.round(trend * 10) / 10
+                };
+              }
+              return metric;
+            })
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
   }, []);
 
   return (

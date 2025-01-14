@@ -1,5 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Users, User, ChevronDown, ChevronUp } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
+
+interface DemographicData {
+  gender: string;
+  age_range: string;
+  engagement_rate: number;
+  follower_count: number;
+  posts: string;
+  growth: string;
+  interests: string[];
+}
 
 interface AgeGroup {
   range: string;
@@ -80,6 +91,75 @@ const genderData: GenderMetrics[] = [
 
 export function UserSegments() {
   const [expandedSegment, setExpandedSegment] = useState<'men' | 'women' | null>(null);
+  const [demographics, setDemographics] = useState<GenderMetrics[]>(genderData);
+
+  useEffect(() => {
+    async function fetchDemographics() {
+      const { data, error } = await supabase
+        .from('audience_demographics')
+        .select('*')
+        .order('updated_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching demographics:', error);
+        return;
+      }
+
+      if (!data?.length) return; // Keep using mock data if no real data exists
+
+      // Transform Supabase data to match our interface
+      const menData = data.filter((d: DemographicData) => d.gender === 'male');
+      const womenData = data.filter((d: DemographicData) => d.gender === 'female');
+
+      const transformGenderData = (genderData: any[], gender: 'men' | 'women') => ({
+        gender,
+        metrics: {
+          engagement: `${(genderData.reduce((acc, d) => acc + d.engagement_rate, 0) / genderData.length).toFixed(1)}%`,
+          followers: `${(genderData.reduce((acc, d) => acc + d.follower_count, 0) / 1000).toFixed(1)}K`,
+          posts: genderData[0]?.posts || '0',
+          growth: `+${(genderData.reduce((acc, d) => acc + parseFloat(d.growth || '0'), 0) / genderData.length).toFixed(0)}%`
+        },
+        preferences: genderData[0]?.interests || [],
+        topCategories: genderData[0]?.interests?.slice(0, 4) || [],
+        ageGroups: genderData
+          .filter(d => d.age_range)
+          .map(d => ({
+            range: d.age_range,
+            percentage: Math.round((d.follower_count / genderData.reduce((acc, g) => acc + g.follower_count, 0)) * 100),
+            engagement: `${d.engagement_rate.toFixed(1)}%`,
+            growth: `+${parseFloat(d.growth || '0').toFixed(0)}%`
+          }))
+      });
+
+      const newDemographics = [
+        transformGenderData(menData, 'men'),
+        transformGenderData(womenData, 'women')
+      ];
+
+      setDemographics(newDemographics);
+    }
+
+    fetchDemographics();
+
+    // Subscribe to real-time updates
+    const subscription = supabase
+      .channel('audience_demographics')
+      .on('postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'audience_demographics'
+        },
+        () => {
+          fetchDemographics(); // Refetch all data when any changes occur
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-zinc-200">

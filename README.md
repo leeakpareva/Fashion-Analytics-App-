@@ -1,5 +1,28 @@
 # NAVADA - Fashion Analytics Platform
 
+## Environment Setup
+
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Update the environment variables in `.env` with your Supabase project credentials:
+   - `VITE_SUPABASE_URL`: Your Supabase project URL
+   - `VITE_SUPABASE_ANON_KEY`: Your Supabase project anonymous key
+
+## Database Setup
+
+1. Run the Supabase migrations:
+   ```bash
+   supabase db push
+   ```
+
+2. The migrations will create:
+   - User profiles with role-based access (admin, analyst, viewer)
+   - Analytics tables for tracking metrics
+   - Real-time subscriptions for live updates
+
 [Previous content remains unchanged until Payment Integration section]
 
 ## Payment Integration

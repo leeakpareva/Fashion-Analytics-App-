@@ -1,6 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
-import { Clock, Filter, Download } from 'lucide-react';
+import { Clock, Download } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
+
+interface ContentPerformanceData {
+  created_at: string;
+  likes: number;
+  comments: number;
+  shares: number;
+  impressions: number;
+}
 
 interface TimeSlot {
   hour: string;
@@ -14,29 +23,73 @@ export function ContentPerformanceGraph() {
   const [data, setData] = useState<TimeSlot[]>([]);
 
   useEffect(() => {
-    // Simulate fetching data
-    const generateData = () => {
-      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      const hours = [];
-      
-      for (const day of days) {
-        for (let i = 0; i < 24; i++) {
-          const hour = i.toString().padStart(2, '0') + ':00';
-          hours.push({
-            hour: `${day} ${hour}`,
-            engagement: Math.random() * 10 + (i >= 8 && i <= 20 ? 5 : 2), // Higher engagement during day
-            posts: Math.floor(Math.random() * 20) + 5,
-            day: day === 'Sat' || day === 'Sun' ? 'weekend' : 'weekday'
+    async function fetchContentPerformance() {
+      const { data: performanceData, error } = await supabase
+        .from('content_performance')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching content performance:', error);
+        return;
+      }
+
+      if (!performanceData?.length) return;
+
+      // Transform data into hourly slots
+      const transformedData = performanceData.map((item: ContentPerformanceData) => {
+        const date = new Date(item.created_at);
+        const day = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()];
+        const hour = date.getHours().toString().padStart(2, '0') + ':00';
+
+        return {
+          hour: `${day} ${hour}`,
+          engagement: ((item.likes + item.comments + item.shares) / item.impressions) * 100,
+          posts: 1, // Each record represents one post
+          day: ['Sat', 'Sun'].includes(day) ? 'weekend' : 'weekday'
+        };
+      });
+
+      // Group by hour and aggregate
+      const hourlyData = transformedData.reduce((acc: TimeSlot[], curr: TimeSlot) => {
+        const existing = acc.find(item => item.hour === curr.hour);
+        if (existing) {
+          existing.engagement = (existing.engagement * existing.posts + curr.engagement) / (existing.posts + 1);
+          existing.posts += curr.posts;
+        } else {
+          acc.push({
+            hour: curr.hour,
+            engagement: curr.engagement,
+            posts: curr.posts,
+            day: curr.day
           });
         }
-      }
-      
-      setData(hours);
-    };
+        return acc;
+      }, []);
 
-    generateData();
-    const interval = setInterval(generateData, 5000); // Update every 5 seconds
-    return () => clearInterval(interval);
+      setData(hourlyData);
+    }
+
+    fetchContentPerformance();
+
+    // Subscribe to real-time updates
+    const subscription = supabase
+      .channel('content_performance')
+      .on('postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'content_performance'
+        },
+        () => {
+          fetchContentPerformance(); // Refetch all data when new content is added
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const filteredData = data.filter(slot => {
