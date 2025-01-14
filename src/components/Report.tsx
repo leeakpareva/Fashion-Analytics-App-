@@ -1,18 +1,11 @@
 import { useState, useCallback } from 'react';
 import { 
   FileText, 
-  Download, 
-  TrendingUp, 
-  Users, 
-  Camera, 
-  Hash,
-  ArrowRight,
+  Download,
   Image,
   ShoppingBag,
   Sparkles
 } from 'lucide-react';
-import { Line } from 'react-chartjs-2';
-import type { ChartData, ChartOptions } from 'chart.js';
 import { ReportTemplateSelector } from './ReportTemplateSelector';
 import { ReportCustomizer } from './ReportCustomizer';
 import type { ReportTemplate, CustomizationOptions } from '../types/report';
@@ -25,7 +18,7 @@ interface ReportProps {
       label: string;
       value: string;
       trend: string;
-      icon: any;
+      icon: React.ElementType;
     }>;
     performanceData: {
       labels: string[];

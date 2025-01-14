@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileText, Settings, Calendar, Users } from 'lucide-react';
+import { FileText, Settings, Calendar } from 'lucide-react';
 import type { ReportTemplate } from '../types/report';
 
 const defaultTemplates: ReportTemplate[] = [

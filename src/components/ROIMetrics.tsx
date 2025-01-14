@@ -1,5 +1,19 @@
 import { useState, useEffect } from 'react';
 import { DollarSign, TrendingUp, Calendar, Download } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
+
+interface SupabaseROIMetric {
+  campaign_id: string;
+  platform: string;
+  spend: number;
+  revenue: number;
+  conversions: number;
+  conversion_rate: number;
+  cost_per_conversion: number;
+  roi: number;
+  start_date: string;
+  end_date: string;
+}
 
 interface ROIMetric {
   category: string;
@@ -69,8 +83,51 @@ export function ROIMetrics() {
   const [metrics, setMetrics] = useState<ROIMetric[]>([]);
 
   useEffect(() => {
-    const newData = generateDataForDate(selectedDate);
-    setMetrics(newData);
+    async function fetchROIMetrics() {
+      const { data, error } = await supabase
+        .from('roi_metrics')
+        .select(`
+          campaign_id,
+          platform,
+          spend,
+          revenue,
+          conversions,
+          conversion_rate,
+          cost_per_conversion,
+          roi,
+          start_date,
+          end_date
+        `)
+        .gte('start_date', selectedDate)
+        .lte('end_date', selectedDate)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching ROI metrics:', error);
+        return;
+      }
+
+      if (!data?.length) {
+        // Fallback to generated data if no real data exists
+        const newData = generateDataForDate(selectedDate);
+        setMetrics(newData);
+        return;
+      }
+
+      // Transform Supabase data to match our interface
+      const transformedData = data.map((item: SupabaseROIMetric) => ({
+        category: item.platform,
+        investment: item.spend,
+        revenue: item.revenue,
+        roi: item.roi,
+        trend: ((item.revenue - item.spend) / item.spend) * 100,
+        dailyRevenue: item.revenue / 30 // Approximate daily revenue
+      }));
+
+      setMetrics(transformedData);
+    }
+
+    fetchROIMetrics();
   }, [selectedDate]);
 
   const totalROI = metrics.reduce((acc, curr) => acc + curr.roi, 0) / metrics.length;

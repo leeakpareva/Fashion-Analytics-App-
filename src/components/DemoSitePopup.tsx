@@ -1,4 +1,4 @@
-import { useState } from 'react';
+
 import { X, ExternalLink, AlertCircle } from 'lucide-react';
 
 interface DemoSitePopupProps {

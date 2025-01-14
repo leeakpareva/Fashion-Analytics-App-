@@ -4,7 +4,7 @@ import { ChevronDown, ChevronUp, Briefcase, Target, Workflow, Users, Brain, Rock
 interface Section {
   title: string;
   content: string[] | { [key: string]: string[] };
-  icon: any;
+  icon: React.ElementType;
 }
 
 export function AboutUs() {

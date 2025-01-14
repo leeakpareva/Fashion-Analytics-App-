@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Download, FileText, FileImage, Loader2 } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 
 interface ExportButtonProps {
-  data: any;
+  data: Record<string, unknown>[];
   filename?: string;
 }
 
@@ -16,7 +16,7 @@ export function ExportButton({ data, filename = 'analytics' }: ExportButtonProps
       const headers = Object.keys(data[0]);
       const csvContent = [
         headers.join(','),
-        ...data.map((row: any) => headers.map(header => row[header]).join(','))
+        ...data.map((row) => headers.map(header => row[header]).join(','))
       ].join('\n');
 
       const blob = new Blob([csvContent], { type: 'text/csv' });

@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronUp, TrendingDown, LineChart, Zap, Target, DollarSign, BarChart2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, LineChart, Zap, Target } from 'lucide-react';
 
 interface Section {
   title: string;
-  icon: any;
+  icon: React.ElementType;
   content: {
     points: string[];
     stats?: Array<{

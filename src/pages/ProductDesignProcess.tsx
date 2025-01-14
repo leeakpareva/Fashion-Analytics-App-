@@ -12,7 +12,7 @@ import {
 interface TimelineStep {
   title: string;
   duration: string;
-  icon: any;
+  icon: React.ElementType;
   tasks: string[];
   status: 'completed' | 'in-progress' | 'pending';
 }
