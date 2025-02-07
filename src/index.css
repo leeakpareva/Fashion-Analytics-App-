@@ -1,131 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Mobile-first media queries */
 @layer base {
-  html {
-    -webkit-tap-highlight-color: transparent;
-    scroll-behavior: smooth;
-  }
-
-  body {
-    @apply antialiased text-base;
-  }
-
-  /* Improve mobile text readability */
-  h1 {
-    @apply text-2xl sm:text-3xl;
-  }
-
-  h2 {
-    @apply text-xl sm:text-2xl;
-  }
-
-  /* Improve touch targets for mobile */
-  button, a {
-    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
-  }
-}
-
-/* Responsive layout utilities */
-@layer utilities {
-  .mobile-safe-padding {
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-top: env(safe-area-inset-top);
-  }
-
-  .mobile-container {
-    @apply px-4 sm:px-6 max-w-7xl mx-auto;
-  }
-
-  .text-flow {
-    font-size: clamp(2rem, 8vw, 6rem);
-    font-weight: bold;
-    color: white;
-    display: flex;
-    gap: 0.5rem;
-    transition: transform 0.5s ease-out;
+  :root {
+    --radius: 0.5rem
+  ;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%}
+  .dark {
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%
   }
 }
 
-/* Mobile menu animations */
-@keyframes slideIn {
-  from {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes scale-in {
-  from {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.mobile-menu-enter {
-  animation: slideIn 0.3s ease-out;
-}
-
-.mobile-menu-backdrop {
-  animation: fadeIn 0.2s ease-out;
-}
-
-.animate-scale-in {
-  animation: scale-in 0.2s ease-out forwards;
-}
-
-/* Mobile grid optimizations */
-.responsive-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-  gap: 1rem;
-}
-
-/* Mobile scroll optimizations */
-.smooth-scroll {
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-  overscroll-behavior-y: contain;
-}
-
-/* Mobile-first table styles */
-.responsive-table {
-  @apply w-full overflow-x-auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Loading states */
-.loading-skeleton {
-  @apply animate-pulse bg-zinc-100 rounded;
-}
-
-/* Mobile form optimizations */
-input, select, textarea {
-  @apply text-base; /* Prevents zoom on iOS */
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-/* Prevent pull-to-refresh on mobile */
-body {
-  overscroll-behavior-y: none;
-}
